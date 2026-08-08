@@ -14,18 +14,21 @@
 #   3. python scripts/create_admin_user.py --username admin --password "..."
 #   4. Revert .env back to the local MongoDB URI for local dev.
 #
-# Deploy order matters for the frontend: deploy sepsis-icu-api FIRST, copy its
-# public onrender.com URL from the Render dashboard, THEN deploy
-# sepsis-icu-frontend and paste that URL in as VITE_API_BASE_URL (Vite bakes
-# it into the JS bundle at build time -- changing it later requires a rebuild).
+# The frontend's VITE_API_BASE_URL below is hardcoded to the sepsis-icu-api
+# service's onrender.com URL (Render doesn't guarantee a stable cross-service
+# URL reference for free-tier blueprints). If that service is ever renamed,
+# update it here too -- and remember Vite bakes it into the JS bundle at
+# build time, so changing it requires a rebuild/redeploy either way.
 
 services:
   - type: web
     name: sepsis-icu-api
     runtime: python
     plan: free
+    branch: main
     buildCommand: pip install -r requirements-api.txt
     startCommand: uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health   # also verifies Mongo connectivity, not just process liveness
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
@@ -45,6 +48,7 @@ services:
   - type: web
     name: sepsis-icu-frontend
     runtime: static
+    branch: main
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
@@ -57,6 +61,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        sync: false                 # paste the sepsis-icu-api service's onrender.com URL here
+        value: https://sepsis-icu-api.onrender.com
       - key: VITE_LIVE_MONITORING_POLL_SECONDS
         value: "5"
