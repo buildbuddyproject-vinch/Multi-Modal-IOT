@@ -1,7 +1,7 @@
 # Render Blueprint (https://render.com/docs/blueprint-spec) for the FastAPI
-# backend only (src/api/main.py). The Dash dashboard, realtime MQTT pipeline,
-# and simulator are not part of this blueprint -- they still run locally
-# against this deployed API's URL.
+# backend (src/api/main.py) and the Plotly Dash dashboard (dashboard/app.py).
+# The realtime MQTT pipeline and simulator are not part of this blueprint --
+# they still run locally against the deployed API's URL.
 #
 # Deploy: Render dashboard -> New + -> Blueprint -> pick this repo/branch.
 # Render will prompt for every env var below marked `sync: false` (MONGO_URI)
@@ -13,6 +13,11 @@
 #   2. python scripts/init_mongodb.py          # creates collections, $jsonSchema validators, indexes
 #   3. python scripts/create_admin_user.py --username admin --password "..."
 #   4. Revert .env back to the local MongoDB URI for local dev.
+#
+# The dashboard's API_BASE_URL below is hardcoded to the sepsis-icu-api
+# service's onrender.com URL. If that service is ever renamed, update it here
+# too -- Render doesn't guarantee a stable cross-service URL reference for
+# free-tier blueprints.
 
 services:
   - type: web
@@ -38,3 +43,21 @@ services:
         value: "High,Critical"
       - key: ALERT_COOLDOWN_MINUTES
         value: "30"
+
+  - type: web
+    name: sepsis-icu-dashboard
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements-dashboard.txt
+    startCommand: gunicorn dashboard.app:server --bind 0.0.0.0:$PORT
+    healthCheckPath: /login   # public route, doesn't require auth or backend availability
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: API_BASE_URL
+        value: https://sepsis-icu-api.onrender.com
+      - key: DASHBOARD_SECRET_KEY
+        generateValue: true   # signs the Flask session cookie holding each clinician's JWT
+      - key: LIVE_MONITORING_POLL_SECONDS
+        value: "5.0"

@@ -1,0 +1,24 @@
+# Lean dependency set for deploying ONLY the Plotly Dash dashboard (dashboard/app.py),
+# e.g. to Render. Deliberately excludes the training/EDA/API stack (tensorflow, shap,
+# fastapi, pymongo, ...) -- the dashboard never touches MongoDB directly, it's a pure
+# client of the FastAPI backend via dashboard/api_client.py (httpx).
+#
+# Local full-stack dev should still use requirements.txt. Install with:
+#   pip install -r requirements-dashboard.txt
+
+# --- Dashboard framework ---
+dash>=2.16,<2.18
+dash-bootstrap-components>=1.5,<1.7
+plotly>=5.18,<5.25
+
+# --- HTTP client (talks to the FastAPI backend server-side) ---
+httpx>=0.27,<0.28
+
+# --- Config loading ---
+pydantic>=2.6,<2.9
+pydantic-settings>=2.2,<2.5
+python-dotenv>=1.0,<1.1
+
+# --- Production WSGI server (Dash's own dev server / Flask's werkzeug
+# server are not meant for production) ---
+gunicorn>=22.0,<23.0
