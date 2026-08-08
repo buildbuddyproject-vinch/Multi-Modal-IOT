@@ -1,0 +1,787 @@
+/* Premium dark "ICU monitor" theme layered on top of dash-bootstrap-components'
+   CYBORG theme -- CYBORG gives us a sane dark base; this file replaces it with a
+   deliberate design system: a real typeface, layered elevation, a left sidebar
+   shell, glassy cards, refined tables/badges/forms/charts, and responsive
+   behaviour down to phone width. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --icu-bg: #070a12;
+    --icu-bg-gradient: radial-gradient(circle at 15% 0%, rgba(56, 189, 248, 0.08), transparent 45%),
+                        radial-gradient(circle at 85% 100%, rgba(129, 140, 248, 0.07), transparent 45%),
+                        #070a12;
+    --icu-panel: #10141f;
+    --icu-panel-alt: #141928;
+    --icu-panel-raised: #161c2c;
+    --icu-border: #212840;
+    --icu-border-soft: rgba(255, 255, 255, 0.06);
+    --icu-text: #eef1f8;
+    --icu-text-muted: #8993ab;
+    --icu-text-faint: #5c6785;
+    --icu-accent: #38bdf8;
+    --icu-accent-strong: #0ea5e9;
+    --icu-accent-soft: rgba(56, 189, 248, 0.12);
+    --icu-gradient: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    --icu-radius-sm: 0.5rem;
+    --icu-radius: 0.85rem;
+    --icu-radius-lg: 1.1rem;
+    --icu-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 28px -8px rgba(0, 0, 0, 0.55);
+    --icu-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --icu-low: #2dd4bf;
+    --icu-medium: #facc15;
+    --icu-high: #fb923c;
+    --icu-critical: #fb3a5d;
+    --sidebar-width: 258px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body, .app-shell {
+    background: var(--icu-bg-gradient) !important;
+    background-attachment: fixed;
+    color: var(--icu-text);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--icu-text);
+}
+
+h2 {
+    font-size: 1.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+p, span, div, td, th, label {
+    letter-spacing: -0.005em;
+}
+
+.text-muted {
+    color: var(--icu-text-muted) !important;
+}
+
+a {
+    color: var(--icu-accent);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+a:hover {
+    color: #7dd3fc;
+}
+
+/* ---------- App shell: sidebar + main content ---------- */
+
+.app-shell {
+    display: flex;
+    align-items: stretch;
+}
+
+.app-main-col {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 2rem 2.25rem 3.5rem;
+}
+
+/* ---------- Sidebar ---------- */
+
+.icu-sidebar {
+    width: var(--sidebar-width);
+    flex: 0 0 var(--sidebar-width);
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--icu-panel-alt) 0%, var(--icu-bg) 100%);
+    border-right: 1px solid var(--icu-border-soft);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.1rem;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+}
+
+.icu-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.4rem 0.6rem 1.6rem;
+    margin-bottom: 0.6rem;
+    border-bottom: 1px solid var(--icu-border-soft);
+}
+
+.icu-sidebar-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 0.65rem;
+    background: var(--icu-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 14px -2px rgba(56, 189, 248, 0.45);
+    flex-shrink: 0;
+}
+
+.icu-sidebar-brand-text {
+    line-height: 1.15;
+}
+
+.icu-sidebar-brand-title {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--icu-text);
+}
+
+.icu-sidebar-brand-subtitle {
+    font-size: 0.68rem;
+    color: var(--icu-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.icu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    margin-top: 0.5rem;
+}
+
+.icu-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.62rem 0.8rem;
+    border-radius: var(--icu-radius-sm);
+    color: var(--icu-text-muted) !important;
+    font-weight: 500;
+    font-size: 0.89rem;
+    border-left: 2px solid transparent;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.icu-nav-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.92rem;
+    color: var(--icu-text-faint);
+    transition: color 0.15s ease;
+}
+
+.icu-nav-link:hover {
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--icu-text) !important;
+}
+
+.icu-nav-link.active {
+    background: var(--icu-accent-soft);
+    color: var(--icu-text) !important;
+    border-left-color: var(--icu-accent);
+    font-weight: 600;
+}
+
+.icu-nav-link.active i {
+    color: var(--icu-accent);
+}
+
+.icu-sidebar-footer {
+    border-top: 1px solid var(--icu-border-soft);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.icu-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0.5rem;
+    border-radius: var(--icu-radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 0.6rem;
+}
+
+.icu-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--icu-gradient);
+    color: #071019;
+    font-weight: 700;
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icu-user-meta {
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.icu-user-name {
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--icu-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.icu-user-role {
+    font-size: 0.68rem;
+    color: var(--icu-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ---------- Cards ---------- */
+
+.icu-card {
+    background: linear-gradient(155deg, var(--icu-panel-raised) 0%, var(--icu-panel) 100%) !important;
+    border: 1px solid var(--icu-border-soft) !important;
+    border-radius: var(--icu-radius) !important;
+    box-shadow: var(--icu-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.icu-card:hover {
+    border-color: rgba(56, 189, 248, 0.28) !important;
+}
+
+.icu-kpi-card {
+    position: relative;
+    overflow: hidden;
+    padding-left: 0.15rem;
+}
+
+.icu-kpi-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: var(--icu-radius) 0 0 var(--icu-radius);
+}
+
+.icu-kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+}
+
+.icu-kpi-value {
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.icu-kpi-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--icu-text-muted);
+}
+
+.icu-section-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+}
+
+.icu-section-title i {
+    color: var(--icu-accent);
+    font-size: 0.9rem;
+}
+
+.icu-page-header {
+    margin-bottom: 1.75rem;
+}
+
+.icu-page-subtitle {
+    color: var(--icu-text-muted);
+    font-size: 0.88rem;
+    margin-top: 0.15rem;
+}
+
+/* ---------- Tables ---------- */
+
+.icu-table {
+    background-color: transparent;
+    border-radius: var(--icu-radius);
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.icu-table thead th {
+    color: var(--icu-text-faint);
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--icu-border) !important;
+    background-color: rgba(255, 255, 255, 0.02);
+    padding: 0.85rem 1rem;
+}
+
+.icu-table td {
+    border-bottom: 1px solid var(--icu-border-soft) !important;
+    vertical-align: middle;
+    padding: 0.8rem 1rem;
+    font-size: 0.87rem;
+    color: var(--icu-text);
+}
+
+.icu-table tbody tr {
+    transition: background-color 0.12s ease;
+}
+
+.icu-table.table-hover tbody tr:hover {
+    background-color: rgba(56, 189, 248, 0.045) !important;
+    color: var(--icu-text);
+}
+
+.icu-table-card {
+    background: linear-gradient(155deg, var(--icu-panel-raised) 0%, var(--icu-panel) 100%);
+    border: 1px solid var(--icu-border-soft);
+    border-radius: var(--icu-radius-lg);
+    box-shadow: var(--icu-shadow);
+    padding: 0.4rem;
+}
+
+/* ---------- Badges ---------- */
+
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 999px !important;
+    padding: 0.35em 0.75em !important;
+    font-size: 0.72rem;
+}
+
+.icu-risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.32rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.icu-risk-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+    border-radius: var(--icu-radius-sm) !important;
+    font-weight: 600;
+    font-size: 0.86rem;
+    letter-spacing: -0.005em;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.btn-info {
+    background: var(--icu-gradient) !important;
+    border: none !important;
+    color: #061018 !important;
+    box-shadow: 0 6px 18px -6px rgba(56, 189, 248, 0.55);
+}
+
+.btn-info:hover, .btn-info:focus {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px -6px rgba(56, 189, 248, 0.65);
+}
+
+.btn-outline-secondary, .btn-secondary {
+    border-color: var(--icu-border) !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--icu-border) !important;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #facc15, #fb923c) !important;
+    border: none !important;
+    color: #241a00 !important;
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ---------- Forms / inputs ---------- */
+
+.form-control, .form-select, input.form-control {
+    background-color: var(--icu-panel-alt) !important;
+    border: 1px solid var(--icu-border) !important;
+    color: var(--icu-text) !important;
+    border-radius: var(--icu-radius-sm) !important;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--icu-accent) !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18) !important;
+    background-color: var(--icu-panel-alt) !important;
+}
+
+.form-control::placeholder {
+    color: var(--icu-text-faint);
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--icu-text-muted);
+    margin-bottom: 0.35rem;
+}
+
+/* dcc.Dropdown (react-select) dark theme overrides */
+.Select-control, .Select--single > .Select-control {
+    background-color: var(--icu-panel-alt) !important;
+    border: 1px solid var(--icu-border) !important;
+    border-radius: var(--icu-radius-sm) !important;
+    min-height: 42px !important;
+}
+
+.Select-placeholder, .Select--single > .Select-control .Select-value {
+    color: var(--icu-text-faint) !important;
+    line-height: 40px !important;
+}
+
+.Select-value-label, .Select-input > input {
+    color: var(--icu-text) !important;
+}
+
+.Select-menu-outer {
+    background-color: var(--icu-panel-raised) !important;
+    border: 1px solid var(--icu-border) !important;
+    border-radius: var(--icu-radius-sm) !important;
+    overflow: hidden;
+}
+
+.VirtualizedSelectOption {
+    background-color: var(--icu-panel-raised) !important;
+    color: var(--icu-text) !important;
+}
+
+.VirtualizedSelectFocusedOption {
+    background-color: var(--icu-accent-soft) !important;
+    color: var(--icu-text) !important;
+}
+
+.Select-arrow {
+    border-color: var(--icu-text-faint) transparent transparent !important;
+}
+
+.is-open .Select-arrow {
+    border-color: transparent transparent var(--icu-text-faint) !important;
+}
+
+/* ---------- Tabs ---------- */
+
+.nav-tabs {
+    border-bottom: 1px solid var(--icu-border) !important;
+    gap: 0.25rem;
+}
+
+.nav-tabs .nav-link {
+    color: var(--icu-text-muted) !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.7rem 1.1rem;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--icu-text) !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--icu-accent) !important;
+    background: transparent !important;
+    border-bottom-color: var(--icu-accent) !important;
+}
+
+/* ---------- Alerts ---------- */
+
+.alert {
+    border-radius: var(--icu-radius) !important;
+    border: 1px solid var(--icu-border-soft) !important;
+    font-size: 0.88rem;
+}
+
+/* ---------- Login page ---------- */
+
+.icu-login-page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--icu-bg-gradient);
+    padding: 1.5rem;
+    margin: -2rem -2.25rem -3.5rem;
+}
+
+@media (max-width: 900px) {
+    .icu-login-page {
+        margin: -1.5rem -1.1rem -3rem;
+    }
+}
+
+.icu-login-card {
+    width: 100%;
+    max-width: 400px;
+    background: linear-gradient(160deg, var(--icu-panel-raised) 0%, var(--icu-panel) 100%) !important;
+    border: 1px solid var(--icu-border-soft) !important;
+    border-radius: var(--icu-radius-lg) !important;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(56, 189, 248, 0.06);
+}
+
+.icu-login-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 1rem;
+    background: var(--icu-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin: 0 auto 1.1rem;
+    box-shadow: 0 10px 28px -8px rgba(56, 189, 248, 0.55);
+}
+
+.icu-login-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.icu-login-subtitle {
+    text-align: center;
+    color: var(--icu-text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ---------- Misc ---------- */
+
+.icu-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--icu-low);
+    display: inline-block;
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.6);
+    animation: icu-pulse 1.8s infinite;
+}
+
+@keyframes icu-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(45, 212, 191, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+}
+
+/* ---------- Critical/High risk alert toasts (global, all pages) ---------- */
+
+.icu-toast-stack {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    width: min(360px, calc(100vw - 2.5rem));
+    pointer-events: none;
+}
+
+.icu-alert-toast {
+    pointer-events: auto;
+    background: linear-gradient(155deg, var(--icu-panel-raised) 0%, var(--icu-panel) 100%) !important;
+    border-radius: var(--icu-radius) !important;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: icu-toast-in 0.28s ease-out;
+    border: 1px solid var(--icu-border-soft) !important;
+    border-left-width: 4px !important;
+}
+
+.icu-alert-toast-critical {
+    border-left-color: var(--icu-critical) !important;
+    box-shadow: 0 16px 40px -12px rgba(251, 58, 93, 0.35);
+}
+
+.icu-alert-toast-high {
+    border-left-color: var(--icu-high) !important;
+    box-shadow: 0 16px 40px -12px rgba(251, 146, 60, 0.3);
+}
+
+.icu-alert-toast .toast-header {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    color: var(--icu-text) !important;
+    border-bottom: 1px solid var(--icu-border-soft) !important;
+    font-weight: 700;
+    font-size: 0.82rem;
+}
+
+.icu-alert-toast-critical .toast-header i {
+    color: var(--icu-critical);
+}
+
+.icu-alert-toast-high .toast-header i {
+    color: var(--icu-high);
+}
+
+.icu-alert-toast .toast-body {
+    color: var(--icu-text);
+    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+}
+
+.icu-alert-toast .btn-close {
+    filter: invert(1) grayscale(100%) brightness(1.8);
+    opacity: 0.6;
+}
+
+.icu-alert-toast .btn-close:hover {
+    opacity: 1;
+}
+
+@keyframes icu-toast-in {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--icu-border);
+    border-radius: 999px;
+    border: 2px solid var(--icu-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #313b5c;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+    .app-shell {
+        flex-direction: column;
+    }
+
+    .icu-sidebar {
+        width: 100%;
+        flex: 0 0 auto;
+        min-height: auto;
+        position: relative;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-right: none;
+        border-bottom: 1px solid var(--icu-border-soft);
+        gap: 1rem;
+    }
+
+    .icu-sidebar-brand {
+        border-bottom: none;
+        padding: 0;
+        margin-bottom: 0;
+    }
+
+    .icu-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        margin-top: 0;
+        flex: 1;
+    }
+
+    .icu-nav-link {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+
+    .icu-nav-link.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--icu-accent);
+    }
+
+    .icu-sidebar-footer {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    .icu-user-name, .icu-user-role {
+        display: none;
+    }
+
+    .app-main-col {
+        padding: 1.5rem 1.1rem 3rem;
+    }
+
+    .icu-toast-stack {
+        top: 4.5rem;
+        right: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    h2 {
+        font-size: 1.3rem;
+    }
+    .icu-kpi-value {
+        font-size: 1.5rem !important;
+    }
+    .icu-table {
+        font-size: 0.85rem;
+    }
+}

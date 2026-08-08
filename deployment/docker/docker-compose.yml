@@ -1,0 +1,27 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: sepsis_icu_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - sepsis_icu_mongo_data:/data/db
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: sepsis_icu_mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - sepsis_icu_mosquitto_data:/mosquitto/data
+      - sepsis_icu_mosquitto_log:/mosquitto/log
+    restart: unless-stopped
+    profiles:
+      - mqtt  # not started by default until Step 8/11 need it: docker compose --profile mqtt up -d
+
+volumes:
+  sepsis_icu_mongo_data:
+  sepsis_icu_mosquitto_data:
+  sepsis_icu_mosquitto_log:

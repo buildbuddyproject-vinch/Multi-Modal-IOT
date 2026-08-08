@@ -1,0 +1,20 @@
+{
+  "n_patients": 100,
+  "age_mean": 62.01428571428571,
+  "age_std": 15.42444370195899,
+  "sex_counts": {
+    "M": 57,
+    "F": 43
+  },
+  "unit_counts": {
+    "Medical Intensive Care Unit (MICU)": 29,
+    "Surgical Intensive Care Unit (SICU)": 29,
+    "Cardiac Vascular Intensive Care Unit (CVICU)": 25,
+    "Medical/Surgical Intensive Care Unit (MICU/SICU)": 23,
+    "Trauma SICU (TSICU)": 16,
+    "Coronary Care Unit (CCU)": 13,
+    "Neuro Surgical Intensive Care Unit (Neuro SICU)": 3,
+    "Neuro Stepdown": 1,
+    "Neuro Intermediate": 1
+  }
+}
