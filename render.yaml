@@ -19,8 +19,10 @@ services:
     name: sepsis-icu-api
     runtime: python
     plan: free
+    branch: main
     buildCommand: pip install -r requirements-api.txt
     startCommand: uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health   # also verifies Mongo connectivity, not just process liveness
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
