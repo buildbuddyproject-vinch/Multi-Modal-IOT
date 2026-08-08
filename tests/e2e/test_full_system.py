@@ -2,7 +2,6 @@
 REAL running stack -- no mocks anywhere in this file. Requires:
     docker compose -f deployment/docker/docker-compose.yml up -d mongo
     uvicorn src.api.main:app --host 127.0.0.1 --port 8000
-    python scripts/run_dashboard.py
 
 Deliberately does NOT depend on scripts/run_realtime_pipeline.py or
 scripts/run_realtime_simulator.py being up in another terminal -- that MQTT
@@ -12,7 +11,8 @@ loads the real trained model directly (the same way scripts/seed_dashboard_demo_
 does) so it's self-contained and deterministic: login -> patient -> vitals ->
 a REAL model prediction on a REAL held-out test-set window -> a REAL SHAP
 explanation -> an automatic alert (Step 10's engine) -> acknowledge -> audit
-trail -> the dashboard (Step 9) actually rendering all of it.
+trail -> the exact API calls the React frontend's Patient Detail page makes
+(frontend/src/pages/PatientDetail.jsx) returning everything it needs to render.
 """
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -22,7 +22,6 @@ import numpy as np
 import pytest
 
 API_BASE_URL = "http://127.0.0.1:8000"
-DASHBOARD_BASE_URL = "http://127.0.0.1:8050"
 WINDOW_SIZE = 8
 
 
@@ -33,16 +32,9 @@ def _api_available() -> bool:
         return False
 
 
-def _dashboard_available() -> bool:
-    try:
-        return httpx.get(f"{DASHBOARD_BASE_URL}/login", timeout=2.0).status_code == 200
-    except Exception:
-        return False
-
-
 pytestmark = pytest.mark.skipif(
-    not (_api_available() and _dashboard_available()),
-    reason="requires a live API (uvicorn src.api.main:app) and dashboard (scripts/run_dashboard.py) on localhost",
+    not _api_available(),
+    reason="requires a live API (uvicorn src.api.main:app) on localhost",
 )
 
 
@@ -153,20 +145,19 @@ def test_full_clinical_workflow_end_to_end(high_confidence_septic_window, admin_
     audit_actions = {log["action"] for log in client.get("/audit-logs", params={"limit": 500}).json()}
     assert {"login", "prediction_run", "alert_dispatched", "alert_acknowledged"} <= audit_actions
 
-    # --- 8. The dashboard (Step 9) actually renders what this test just created ---
-    from dashboard import auth
-    from dashboard.app import server
-    from dashboard.pages.patient_detail import load_patient_detail
-    from dashboard.pages.patients import load_patients
+    # --- 8. The exact API calls the React frontend's Patient Detail page makes
+    # (frontend/src/pages/PatientDetail.jsx) return everything it needs to render ---
+    assert client.get("/patients", params={"limit": 500}).json()  # Patients.jsx's list call finds this patient
+    assert any(p["patient_id"] == patient_id for p in client.get("/patients", params={"limit": 500}).json())
 
-    with server.test_request_context("/"):
-        auth.log_in(admin_token, "e2e", "admin")
+    detail_patient = client.get(f"/patients/{patient_id}").json()
+    assert detail_patient["patient_id"] == patient_id
 
-        patients_table = load_patients(1)
-        assert patient_id in str(patients_table)
+    detail_vitals = client.get(f"/vitals/{patient_id}/history", params={"limit": 1000}).json()
+    assert len(detail_vitals) == WINDOW_SIZE
 
-        header, vitals_tab, prediction_tab, shap_tab = load_patient_detail(1, patient_id)
-        assert patient_id in str(header)
-        assert type(vitals_tab).__name__ == "Graph"
-        assert type(prediction_tab).__name__ == "Graph"
-        assert type(shap_tab).__name__ == "Div"  # real SHAP explanation rendered, not the "no explanation" placeholder
+    detail_predictions = client.get(f"/predictions/{patient_id}/history", params={"limit": 200}).json()
+    assert detail_predictions[0]["id"] == prediction_id
+
+    detail_shap = client.get(f"/shap/prediction/{prediction_id}").json()
+    assert detail_shap["shap_values"]  # real SHAP explanation present, not the "no explanation" placeholder

@@ -75,7 +75,7 @@ python scripts/run_shap_explainability.py
 python scripts/init_mongodb.py
 python scripts/create_admin_user.py --username admin --password "ChangeMe123!"
 ```
-There is no self-registration endpoint by design — every account after the first is created by an admin via the dashboard's Admin page (or `POST /auth/register`).
+There is no self-registration endpoint by design — every account after the first is created by an admin via the frontend's Admin page (or `POST /auth/register`).
 
 ## 9. Start the Application (each in its own terminal)
 
@@ -83,17 +83,18 @@ There is no self-registration endpoint by design — every account after the fir
 # Backend API (Swagger UI at http://localhost:8000/docs)
 uvicorn src.api.main:app --reload
 
-# Dashboard (http://localhost:8050)
-python scripts/run_dashboard.py
+# Frontend (http://localhost:5173) -- first time only: cd frontend && npm install
+cd frontend
+npm run dev
 ```
 
 Optional, for demo data / a live real-time stream:
 ```powershell
 # Populate a handful of realistic patients using the REAL trained model + SHAP
-python scripts/seed_dashboard_demo_data.py
+python scripts/seed_dashboard_demo_data.py --owner-username admin --owner-password "ChangeMe123!"
 
 # Real-time MQTT pipeline: replays real PhysioNet patients live (needs Mosquitto running)
-python scripts/run_realtime_pipeline.py
+python scripts/run_realtime_pipeline.py --owner-username admin --owner-password "ChangeMe123!"
 python scripts/run_realtime_simulator.py
 ```
 
@@ -102,7 +103,7 @@ python scripts/run_realtime_simulator.py
 ```powershell
 python scripts/check_system_health.py
 ```
-Reports pass/fail for MongoDB, Mosquitto, the API, and the dashboard in one shot — the fastest way to confirm a fresh setup actually works end to end.
+Reports pass/fail for MongoDB, Mosquitto, the API, and the frontend in one shot — the fastest way to confirm a fresh setup actually works end to end.
 
 ## 11. Run the Tests
 

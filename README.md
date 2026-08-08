@@ -1,6 +1,6 @@
 # Multi-Modal IoT and Deep Learning Framework for Early Prediction of Sepsis in Smart ICU Environments
 
-Final-year BE CSE project. A hybrid deep learning system (Conv1D → Bidirectional LSTM → Transformer Encoder → Dense → Sigmoid) that predicts sepsis onset risk from ICU vitals/labs time-series, served through a FastAPI backend, a MongoDB store, a real-time Plotly Dash dashboard with SHAP-based explainability, a Step 10 alert engine (Telegram/Email/MQTT), and a Step 11 MQTT-driven real-time ingestion pipeline that replays real PhysioNet patients as a live sensor stream.
+Final-year BE CSE project. A hybrid deep learning system (Conv1D → Bidirectional LSTM → Transformer Encoder → Dense → Sigmoid) that predicts sepsis onset risk from ICU vitals/labs time-series, served through a FastAPI backend, a MongoDB store, a real-time React dashboard with SHAP-based explainability, a Step 10 alert engine (Telegram/Email/MQTT), and a Step 11 MQTT-driven real-time ingestion pipeline that replays real PhysioNet patients as a live sensor stream.
 
 ## Project Status
 
@@ -16,7 +16,7 @@ Final-year BE CSE project. A hybrid deep learning system (Conv1D → Bidirection
 | 6 | SHAP explainability (channel-grouped Permutation explainer) |
 | 7 | MongoDB (7 collections, `$jsonSchema` validators, indexes, repositories) |
 | 8 | FastAPI backend (patients/vitals/predictions/alerts/SHAP CRUD) |
-| 9 | Plotly Dash dashboard (JWT login, live monitoring, SHAP panel, dark ICU theme) |
+| 9 | React dashboard (JWT login, live monitoring, SHAP panel, dark ICU theme) |
 | 10 | Alert engine (threshold + cooldown/escalation, Telegram/Email/MQTT dispatch, audit trail) |
 | 11 | Real-time MQTT pipeline (untrusted-hardware-style simulator → ingestion → real model inference) |
 | 12 | Full-system integration, docs finalized, end-to-end regression test |
@@ -26,7 +26,7 @@ Final-year BE CSE project. A hybrid deep learning system (Conv1D → Bidirection
 | Dataset | Role | Location |
 |---|---|---|
 | PhysioNet/Computing in Cardiology Challenge 2019 | Training, validation, testing, prediction, Step 11 real-time replay | `physionet/challenge-2019-1.0.0/training/{training_setA,training_setB}` |
-| MIMIC-IV Clinical Database Demo v2.2 | Schema understanding, dashboard/backend testing | `mimic-iv-clinical-database-demo-2.2/` |
+| MIMIC-IV Clinical Database Demo v2.2 | Schema understanding, frontend/backend testing | `mimic-iv-clinical-database-demo-2.2/` |
 
 MIMIC-III is out of scope (not available locally).
 
@@ -42,7 +42,9 @@ MIMIC-III is out of scope (not available locally).
 
 ## Technology Stack
 
-Python 3.11, TensorFlow 2.16 / Keras 3, FastAPI, MongoDB 7, Mosquitto (MQTT), Plotly Dash + dash-bootstrap-components, SHAP, Pandas, NumPy, SciPy, Scikit-learn, `python-jose` + `passlib` (JWT auth), `httpx`, Docker Compose, pytest.
+**Backend:** Python 3.11, TensorFlow 2.16 / Keras 3, FastAPI, MongoDB 7, Mosquitto (MQTT), SHAP, Pandas, NumPy, SciPy, Scikit-learn, `python-jose` + `passlib` (JWT auth), `httpx`, Docker Compose, pytest.
+
+**Frontend:** React 19 + Vite, React Router, Axios, `react-plotly.js` (charts), plain CSS (no component framework beyond Bootstrap's base styles) -- see [`frontend/`](frontend/). A static SPA that talks to the FastAPI backend directly over JWT; no separate Node server.
 
 ## Documentation
 
@@ -69,18 +71,19 @@ python scripts/create_admin_user.py --username admin --password "ChangeMe123!"
 # 3. Start the backend
 uvicorn src.api.main:app --reload
 
-# 4. In a new terminal: start the dashboard
-python scripts/run_dashboard.py
+# 4. In a new terminal: start the frontend (first time: cd frontend && npm install)
+cd frontend
+npm run dev
 
 # 5. (optional) Populate demo patients using the real trained model
-python scripts/seed_dashboard_demo_data.py
+python scripts/seed_dashboard_demo_data.py --owner-username admin --owner-password "ChangeMe123!"
 
 # 6. (optional) Start the real-time pipeline + simulator for a live MQTT stream
-python scripts/run_realtime_pipeline.py
+python scripts/run_realtime_pipeline.py --owner-username admin --owner-password "ChangeMe123!"
 python scripts/run_realtime_simulator.py
 ```
 
-Then open http://127.0.0.1:8050 and log in. Verify the whole stack is wired together with `python scripts/check_system_health.py`.
+Then open http://127.0.0.1:5173 and log in. Verify the whole stack is wired together with `python scripts/check_system_health.py`.
 
 ## Testing
 

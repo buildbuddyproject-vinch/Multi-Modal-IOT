@@ -1,11 +1,11 @@
-# Render Blueprint (https://render.com/docs/blueprint-spec) for the FastAPI
-# backend only (src/api/main.py). The Dash dashboard, realtime MQTT pipeline,
-# and simulator are not part of this blueprint -- they still run locally
-# against this deployed API's URL.
+# Render Blueprint (https://render.com/docs/blueprint-spec) for two services:
+# the FastAPI backend (src/api/main.py) and the React frontend (frontend/).
+# The realtime MQTT pipeline and simulator are not part of this blueprint --
+# they still run locally against the deployed API's URL.
 #
 # Deploy: Render dashboard -> New + -> Blueprint -> pick this repo/branch.
-# Render will prompt for every env var below marked `sync: false` (MONGO_URI)
-# during the blueprint deploy -- it is never read from this file or the repo.
+# Render will prompt for every env var below marked `sync: false` during the
+# blueprint deploy -- those values are never read from this file or the repo.
 #
 # One-time setup required AFTER the Atlas cluster exists but BEFORE (or right
 # after) the first deploy -- these don't run automatically:
@@ -13,6 +13,11 @@
 #   2. python scripts/init_mongodb.py          # creates collections, $jsonSchema validators, indexes
 #   3. python scripts/create_admin_user.py --username admin --password "..."
 #   4. Revert .env back to the local MongoDB URI for local dev.
+#
+# Deploy order matters for the frontend: deploy sepsis-icu-api FIRST, copy its
+# public onrender.com URL from the Render dashboard, THEN deploy
+# sepsis-icu-frontend and paste that URL in as VITE_API_BASE_URL (Vite bakes
+# it into the JS bundle at build time -- changing it later requires a rebuild).
 
 services:
   - type: web
@@ -36,3 +41,22 @@ services:
         value: "High,Critical"
       - key: ALERT_COOLDOWN_MINUTES
         value: "30"
+
+  - type: web
+    name: sepsis-icu-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      # React Router owns client-side routing (e.g. /patients/demo_p01) --
+      # every path must still serve index.html, or a browser refresh on any
+      # non-root route 404s at Render's static-file layer before React ever runs.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false                 # paste the sepsis-icu-api service's onrender.com URL here
+      - key: VITE_LIVE_MONITORING_POLL_SECONDS
+        value: "5"

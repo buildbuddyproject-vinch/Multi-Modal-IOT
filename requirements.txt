@@ -21,12 +21,10 @@ lightgbm>=4.1,<4.4
 shap>=0.44,<0.47
 lime>=0.2.0.1
 
-# --- Visualization ---
+# --- Visualization (training/EDA plots -- the frontend is a separate React
+# app in frontend/, see frontend/package.json for its own dependencies) ---
 matplotlib>=3.8,<3.10
 seaborn>=0.13,<0.14
-plotly>=5.18,<5.25
-dash>=2.16,<2.18
-dash-bootstrap-components>=1.5,<1.7
 
 # --- Reporting ---
 reportlab>=4.1,<4.3            # server-side PDF clinical report generation (Step 12+)

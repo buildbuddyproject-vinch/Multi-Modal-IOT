@@ -1,9 +1,9 @@
 """Step 12 CLI entry point: one-shot health check across the whole stack --
-MongoDB, Mosquitto, the FastAPI backend, the Dash dashboard, and the trained
+MongoDB, Mosquitto, the FastAPI backend, the React frontend, and the trained
 model artifacts on disk. Exits non-zero if anything required is down, so it
 doubles as a quick post-setup verification and a pre-demo sanity check.
 
-Usage: python scripts/check_system_health.py [--api-base-url ...] [--dashboard-base-url ...]
+Usage: python scripts/check_system_health.py [--api-base-url ...] [--frontend-base-url ...]
 """
 import argparse
 import sys
@@ -57,14 +57,14 @@ def check_model_artifacts() -> tuple[bool, str]:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--api-base-url", default="http://127.0.0.1:8000")
-    parser.add_argument("--dashboard-base-url", default="http://127.0.0.1:8050")
+    parser.add_argument("--frontend-base-url", default="http://127.0.0.1:5173")
     args = parser.parse_args()
 
     checks = [
         ("MongoDB", check_mongodb, True),
         ("Mosquitto (MQTT broker)", check_mosquitto, False),
         ("FastAPI backend", lambda: check_http(f"{args.api_base_url}/health", "API"), True),
-        ("Dash dashboard", lambda: check_http(f"{args.dashboard_base_url}/login", "Dashboard"), False),
+        ("React frontend", lambda: check_http(f"{args.frontend_base_url}/", "Frontend"), False),
         ("Trained model + scaler artifacts", check_model_artifacts, True),
     ]
 
@@ -81,7 +81,7 @@ def main():
 
     print("-" * 80)
     if all_required_ok:
-        print("All required components are healthy. Optional components (MQTT, dashboard) may still need starting.")
+        print("All required components are healthy. Optional components (MQTT, frontend) may still need starting.")
     else:
         print("One or more REQUIRED components are down -- see above.")
     sys.exit(0 if all_required_ok else 1)

@@ -12,7 +12,7 @@
 |---|---|---|---|
 | Unit | `tests/unit/` | Single function/class: preprocessing transforms, model layer shapes, alert threshold logic, SHAP formatting, MQTT payload validation | Mocks only (`mongomock`, in-memory MQTT loopback, tiny synthetic tensors) |
 | Integration | `tests/integration/` | Cross-component: ingestion → MongoDB write → feature window build; FastAPI route → real Mongo (Docker) → response schema | Dockerized MongoDB/Mosquitto |
-| End-to-End | `tests/e2e/` | Full pipeline: simulator publishes → prediction stored → alert dispatched → dashboard API reflects it | Full local stack (Step 12) |
+| End-to-End | `tests/e2e/` | Full pipeline: simulator publishes → prediction stored → alert dispatched → the exact API calls the frontend makes reflect it | Full local stack (Step 12) |
 
 ## 3. Per-Step Testing Checklist
 
@@ -25,10 +25,10 @@
 | 6 (XAI) | SHAP values sum consistency check (approx. matches model output delta from base value); plots saved as files and are non-empty |
 | 7 (MongoDB) | CRUD round-trip for every collection; unique index constraints enforced; connection failure handled gracefully |
 | 8 (FastAPI) | Each endpoint has a `TestClient` test for 200 path and at least one error path (404/422); Swagger schema loads (`/docs`, `/openapi.json`) |
-| 9 (Dashboard) | Dash app starts without exception; callbacks tested with `dash.testing` where practical; renders with simulated data fixture |
+| 9 (Frontend) | React app builds without error; a headless-browser smoke pass drives login → every page → logout against a live backend, checking for console errors |
 | 10 (Alerts) | Threshold-to-risk-level mapping unit tested for all boundary values; Telegram/Email dispatch mocked (no real messages sent in tests) |
 | 11 (Simulator) | Publishes valid payloads matching the MQTT contract (`mqtt_architecture.md §3`) at the configured interval; ingestion consumes them identically to a hand-crafted "fake sensor" publisher; malformed messages are rejected and audit-logged, not silently dropped |
-| 12 (Integration) | `tests/e2e/test_full_system.py`: login → patient → MQTT vitals → real-time prediction (real model) → SHAP → automatic alert (Step 10 engine) → acknowledge → dashboard callback rendering → audit trail, all in one continuous run against the live stack |
+| 12 (Integration) | `tests/e2e/test_full_system.py`: login → patient → MQTT vitals → real-time prediction (real model) → SHAP → automatic alert (Step 10 engine) → acknowledge → the exact API calls the frontend's Patient Detail page makes → audit trail, all in one continuous run against the live stack |
 
 ## 4. Tooling
 

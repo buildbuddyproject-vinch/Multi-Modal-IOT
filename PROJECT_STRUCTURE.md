@@ -61,16 +61,15 @@ Multi-modal IOT/
 │   │                                 #   NOT invoked by FastAPI routes, so it lives outside src/api
 │   └── utils/                        # logging_config.py
 │
-├── dashboard/
-│   ├── assets/                       # dark_icu_theme.css
-│   ├── pages/                        # login, home, patients, patient_detail, live_monitoring, alerts, admin
-│   ├── components/                   # navbar, cards (reusable Dash components)
-│   ├── utils/                        # formatting.py: pure, unit-testable chart/table builders
-│   ├── api_client.py                 # httpx client -- the dashboard's ONLY path to data
-│   ├── auth.py                       # Flask-session helpers
-│   ├── config.py                     # dashboard-side settings
-│   ├── theme.py                      # Plotly dark ICU template + risk colors
-│   └── app.py                        # Dash app assembly, routing guard
+├── frontend/                          # React 19 + Vite SPA (JWT auth, no server-side session)
+│   ├── src/
+│   │   ├── api/client.js             # axios client -- the frontend's ONLY path to data
+│   │   ├── context/AuthContext.jsx   # JWT in localStorage; auth state is a JS variable, no cookie
+│   │   ├── components/               # Sidebar, KpiCard, RiskBadge, AlertToastStack, ProtectedRoute, ...
+│   │   ├── pages/                    # Login, Dashboard, Patients, PatientDetail, AdmitPatient, LiveMonitoring, Alerts, Admin
+│   │   ├── utils/                    # theme.js + formatting.js: pure, unit-portable chart/table builders
+│   │   └── styles/theme.css          # dark ICU theme (ported 1:1 from the original Dash CSS)
+│   └── package.json
 │
 ├── models/
 │   ├── checkpoints/                  # ModelCheckpoint outputs during training
@@ -92,9 +91,9 @@ Multi-modal IOT/
         └── mosquitto/config/mosquitto.conf
 ```
 
-**Design rule enforced by this structure:** `src/models`, `src/api`, `src/database`, and `dashboard/` never import from `src/data/simulation`. The simulator is a peer of future Phase 2 hardware, not a dependency of the core system (see [`docs/architecture/mqtt_architecture.md`](docs/architecture/mqtt_architecture.md)).
+**Design rule enforced by this structure:** `src/models`, `src/api`, and `src/database` never import from `src/data/simulation`. The simulator is a peer of future Phase 2 hardware, not a dependency of the core system (see [`docs/architecture/mqtt_architecture.md`](docs/architecture/mqtt_architecture.md)). `frontend/` is a separate JS project entirely -- it only ever talks to `src/api` over HTTP, never imports Python.
 
 **Deviations from the original Step 1 plan**, made deliberately during later steps and left here rather than silently reconciled:
 - `src/services/realtime_pipeline.py` is a new top-level package, not `src/api/services/` — it's a standalone long-running daemon (MQTT subscriber), never invoked by a FastAPI route, so it doesn't belong under `src/api/`.
-- `dashboard/callbacks/` was planned as a separate module; in practice each page's callbacks live directly in that page's file (`dashboard/pages/*.py`) — standard Dash Pages convention, and there was never enough callback logic per page to justify splitting it out.
+- The dashboard (Step 9) was originally built in Plotly Dash (Python), then rewritten as the React SPA in `frontend/` — the Dash-specific auth/routing model didn't play well with custom session auth (a login-succeeds-but-page-doesn't-update race), which a plain client-side JWT + React Router doesn't have.
 - No `src/alerts/worker.py` — alert dispatch runs in-process inside the `POST /predictions` request (see `docs/architecture/deployment_architecture.md` §1) rather than as a separate MQTT-subscribing worker.
