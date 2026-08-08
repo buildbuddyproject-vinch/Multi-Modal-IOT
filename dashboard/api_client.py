@@ -23,7 +23,11 @@ class ApiClient:
     def __init__(self, base_url: Optional[str] = None, token: Optional[str] = None, transport: Optional[httpx.BaseTransport] = None):
         base_url = base_url or get_dashboard_settings().api_base_url
         headers = {"Authorization": f"Bearer {token}"} if token else {}
-        self._client = httpx.Client(base_url=base_url, headers=headers, timeout=10.0, transport=transport)
+        # read timeout generous enough to survive a cold-started backend waking up
+        # from idle on a free hosting tier (e.g. Render, ~50s worst case); connect
+        # stays short since a refused/unreachable connection fails fast either way.
+        timeout = httpx.Timeout(connect=10.0, read=60.0, write=10.0, pool=10.0)
+        self._client = httpx.Client(base_url=base_url, headers=headers, timeout=timeout, transport=transport)
 
     def close(self) -> None:
         self._client.close()

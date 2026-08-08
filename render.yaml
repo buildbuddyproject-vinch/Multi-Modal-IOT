@@ -50,7 +50,12 @@ services:
     plan: free
     branch: main
     buildCommand: pip install -r requirements-dashboard.txt
-    startCommand: gunicorn dashboard.app:server --bind 0.0.0.0:$PORT
+    # --worker-class gthread --threads 4: a slow request (e.g. login while the
+    # backend is cold-starting from idle) blocks only one thread, not the whole
+    # process, so other users/requests aren't queued behind it. --timeout 120
+    # keeps gunicorn from killing a worker before api_client.py's 60s read
+    # timeout even gets a chance to fire.
+    startCommand: gunicorn dashboard.app:server --bind 0.0.0.0:$PORT --worker-class gthread --threads 4 --timeout 120
     healthCheckPath: /login   # public route, doesn't require auth or backend availability
     envVars:
       - key: PYTHON_VERSION
