@@ -50,12 +50,18 @@ services:
     plan: free
     branch: main
     buildCommand: pip install -r requirements-dashboard.txt
-    # --worker-class gthread --threads 4: a slow request (e.g. login while the
-    # backend is cold-starting from idle) blocks only one thread, not the whole
-    # process, so other users/requests aren't queued behind it. --timeout 120
-    # keeps gunicorn from killing a worker before api_client.py's 60s read
-    # timeout even gets a chance to fire.
-    startCommand: gunicorn dashboard.app:server --bind 0.0.0.0:$PORT --worker-class gthread --threads 4 --timeout 120
+    # Deliberately single-threaded sync worker (gunicorn's default), NOT
+    # --worker-class gthread: that was tried here and caused a fast, genuine
+    # / <-> /login redirect loop (auth.is_authenticated() giving different
+    # answers a few hundred ms apart, within the same page load) -- almost
+    # certainly Dash's callback dispatch context leaking across concurrently
+    # -handled requests on separate threads, a known class of issue with Dash
+    # under threaded/async servers. A slow request now blocks the single
+    # worker for other users too, but the keep-alive workflow
+    # (.github/workflows/keep-alive.yml) keeps both services warm, so slow
+    # requests should be rare. --timeout 120 still guards against gunicorn
+    # killing a worker before api_client.py's 60s read timeout fires.
+    startCommand: gunicorn dashboard.app:server --bind 0.0.0.0:$PORT --timeout 120
     healthCheckPath: /login   # public route, doesn't require auth or backend availability
     envVars:
       - key: PYTHON_VERSION
