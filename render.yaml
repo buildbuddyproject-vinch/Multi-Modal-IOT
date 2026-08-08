@@ -1,0 +1,38 @@
+# Render Blueprint (https://render.com/docs/blueprint-spec) for the FastAPI
+# backend only (src/api/main.py). The Dash dashboard, realtime MQTT pipeline,
+# and simulator are not part of this blueprint -- they still run locally
+# against this deployed API's URL.
+#
+# Deploy: Render dashboard -> New + -> Blueprint -> pick this repo/branch.
+# Render will prompt for every env var below marked `sync: false` (MONGO_URI)
+# during the blueprint deploy -- it is never read from this file or the repo.
+#
+# One-time setup required AFTER the Atlas cluster exists but BEFORE (or right
+# after) the first deploy -- these don't run automatically:
+#   1. Point a local .env's MONGO_URI at the Atlas connection string.
+#   2. python scripts/init_mongodb.py          # creates collections, $jsonSchema validators, indexes
+#   3. python scripts/create_admin_user.py --username admin --password "..."
+#   4. Revert .env back to the local MongoDB URI for local dev.
+
+services:
+  - type: web
+    name: sepsis-icu-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-api.txt
+    startCommand: uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: MONGO_URI
+        sync: false                 # entered manually in the Render dashboard during deploy
+      - key: MONGO_DB_NAME
+        value: sepsis_icu
+      - key: API_SECRET_KEY
+        generateValue: true         # Render generates a random JWT signing secret; never hardcode this
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ALERT_TRIGGER_RISK_LEVELS
+        value: "High,Critical"
+      - key: ALERT_COOLDOWN_MINUTES
+        value: "30"
